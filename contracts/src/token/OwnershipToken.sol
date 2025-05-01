@@ -11,7 +11,7 @@ import {ICompliance} from "./interfaces/ICompliance.sol";
 /// @title ERC3643Token
 /// @author AlinCiprian
 /// @notice This contract is an implementation of an ERC20 Token with several conditions on top of it.
-/// Whenever a collective buy campaign is succesful, a new ERC3643 contrac will be deployed, with a total
+/// Whenever a collective buy campaign is succesful, a new ERC3643 contract will be deployed, with a total
 /// of 100 tokens which will be minted to the campaign contract.
 
 contract ERC3643Token is ERC20, ERC20Burnable, Ownable {
