@@ -11,7 +11,7 @@ meaning the 100 shares are not entirely sold, the campaign fails and users can w
 
 If the goal is reached before the deadline the ownership tokens will be minted and distributed to the owners(or they can redeem?).
 
-Token holders can trade their tokens, they can vote for actions like selling the item. Upon selling, the amount obtained will be escrowed and owners will claim funds proportional to the tokens. 
+Token holders can trade their tokens, they can vote for actions like selling the item. Upon selling, the amount obtained will be escrowed and owners will claim funds proportional to the tokens. A fraction of the profit is charged by the protocol as a fee.
 
 
 ![alt text](image.png)
