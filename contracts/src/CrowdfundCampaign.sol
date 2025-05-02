@@ -21,6 +21,7 @@ contract CrowdfundCampaign {
     error CrowdfundCampaign__CampaignNotEnded();
     error CrowdfundCampaign__RefundCriteriaNotMet();
     error CrowdfundCampaign__NothingToRefund();
+    error CrowdfundCampaign__OnlyOrganizerCanCallThis();
 
     /// organizer of the campaign
     address public organizer;
@@ -28,10 +29,13 @@ contract CrowdfundCampaign {
     string public itemName;
     /// the target price
     uint256 public itemPrice;
+    /// amount that have already been raised
+    uint256 totalRaised;
     /// Each share represent 1% of the asset
     uint256 public totalShares = 100;
-    /// A user can buy a maximum of 34% of the asset so the minimum of owners will be three
-    uint256 public maxSharesPerUser = 34;
+    /// A user can only buy a certain amount of shares to promote decentralization. Depending on the price of the asset
+    /// this will be determined individually.
+    uint256 public maxSharesPerUser;
     /// the value of each share computed from the target price divided by total shares;
     uint256 public sharePrice;
     /// The number will be decreased after each buy
@@ -54,18 +58,42 @@ contract CrowdfundCampaign {
     mapping(address => uint256) public contributed;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  Events
+                                  EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
     event SharesBought(address indexed user, uint256 sharesAmount, uint256 contributedAmount);
     event SharesRedeemed(address indexed user, uint256 sharesAmount);
-    event UsedRefunded(address indexed user, uint256 refundAmount);
+    event UserRefunded(address indexed user, uint256 refundAmount);
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                  MODIFIERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice - used to ensure input  is not zero
+    modifier onlyOrganizer() {
+        if (msg.sender != organizer) revert CrowdfundCampaign__OnlyOrganizerCanCallThis();
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @param _itemName The name of the item
+    /// @param _symbol Symbol of the item
+    /// @param _itemPrice The target price
+    /// @param _duration Duration of the campaign
+    /// @param _maxSharesPerUser How many shares to allow each user to buy. Ex 25 means max 25% ownership per user.
+    /// @param _compliance Address of the compliance contract
+    /// @param _identityregistry Address of the identityRegistry contract
+    /// @param _paymentToken Address of the payment token
+    /// @param _organizer Address of the organizer
     constructor(
         string memory _itemName,
         string memory _symbol,
         uint256 _itemPrice,
         uint256 _duration,
+        uint256 _maxSharesPerUser,
         address _compliance,
         address _identityregistry,
         address _paymentToken,
@@ -73,6 +101,7 @@ contract CrowdfundCampaign {
     ) {
         itemName = _itemName;
         itemPrice = _itemPrice;
+        maxSharesPerUser = _maxSharesPerUser;
         deadline = block.timestamp + _duration;
         sharePrice = _itemPrice / totalShares;
         ownershipToken = new OwnershipToken(_itemName, _symbol, _compliance, _identityregistry);
@@ -80,8 +109,12 @@ contract CrowdfundCampaign {
         organizer = _organizer;
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @param _sharesAmount the amount of shares to be bought
-    function buyShares(uint256 _sharesAmount) public {
+    function buyShares(uint256 _sharesAmount) external {
         // Checks
         if (funded) revert CrowdfundCampaign__CampaignFullyFunded();
         if (block.timestamp > deadline) revert CrowdfundCampaign__DeadlineExceed();
@@ -96,8 +129,9 @@ contract CrowdfundCampaign {
 
         // Effects
         sharesAquired[msg.sender] += _sharesAmount;
-        sharesLeftToBuy -= _sharesAmount;
         contributed[msg.sender] += paymentAmount;
+        sharesLeftToBuy -= _sharesAmount;
+        totalRaised += paymentAmount;
 
         // Interactions
         // the payment amount is computed by multiplying the sharePrice with the amount of shares to be bought
@@ -141,8 +175,15 @@ contract CrowdfundCampaign {
         bool success = IERC20(paymentToken).transfer(msg.sender, amountContributed);
         if (!success) revert CrowdfundCampaign__TransferFailed();
 
-        emit UsedRefunded(msg.sender, amountContributed);
+        emit UserRefunded(msg.sender, amountContributed);
     }
 
     /// function withdraw campaign funds
+    /// @dev function is meant to be called only if the campaign ended succesfully
+    function claimFunds() external onlyOrganizer {
+        if (!funded) revert CrowdfundCampaign__CampaignNotFullyFunded();
+        IERC20(paymentToken).transfer(msg.sender, totalRaised);
+
+        /// NEED to implement escrow
+    }
 }
