@@ -6,16 +6,19 @@ import {IERC20} from "forge-std/interfaces/IERC20.sol";
 
 /// @title CrowdfundCampaign
 /// @author AlinCiprian
-/// @notice
+/// @notice This contract is meant to allow users to collectively buy and own an asset. Fractions of the asset can be bought, in exchange
+/// for which users get ownership tokens. One ownership token equals 1% of the asset.
 
 contract CrowdfundCampaign {
     /*//////////////////////////////////////////////////////////////////////////
                                   ERRORS
     //////////////////////////////////////////////////////////////////////////*/
     error CrowdfundCampaign__InvalidSharesAmount();
-    error CrowdfundCampaign__TrasnferFailed();
+    error CrowdfundCampaign__TransferFailed();
     error CrowdfundCampaign__CampaignFullyFunded();
     error CrowdfundCampaign__DeadlineExceed();
+    error CrowdfundCampaign__CampaignNotFullyFunded();
+    error CrowdfundCampaign__CampaignNotEnded();
 
     /// organizer of the campaign
     address public organizer;
@@ -52,7 +55,8 @@ contract CrowdfundCampaign {
         uint256 _duration,
         address _compliance,
         address _identityregistry,
-        address _paymentToken
+        address _paymentToken,
+        address _organizer
     ) {
         itemName = _itemName;
         itemPrice = _itemPrice;
@@ -60,33 +64,50 @@ contract CrowdfundCampaign {
         sharePrice = _itemPrice / totalShares;
         ownershipToken = new OwnershipToken(_itemName, _symbol, _compliance, _identityregistry);
         paymentToken = _paymentToken;
+        organizer = _organizer;
     }
 
     /// @param _sharesAmount the amount of shares to be bought
     function buyShares(uint256 _sharesAmount) public {
-        // perform the checks
+        // Checks
         if (funded) revert CrowdfundCampaign__CampaignFullyFunded();
         if (block.timestamp > deadline) revert CrowdfundCampaign__DeadlineExceed();
-        if (_sharesAmount <= 0 || _sharesAmount > sharesLeftToBuy || _sharesAmount > maxSharesPerUser) {
+        if (
+            _sharesAmount <= 0 || _sharesAmount > sharesLeftToBuy || _sharesAmount > maxSharesPerUser
+                || sharesAquired[msg.sender] + _sharesAmount > maxSharesPerUser
+        ) {
             revert CrowdfundCampaign__InvalidSharesAmount();
         }
 
         uint256 paymentAmount = _sharesAmount * sharePrice;
-        // update the database
+
+        // Effects
         sharesAquired[msg.sender] += _sharesAmount;
         sharesLeftToBuy -= _sharesAmount;
 
-        // interaction
+        // Interactions
         // the payment amount is computed by multiplying the sharePrice with the amount of shares to be bought
-
         bool success = IERC20(paymentToken).transferFrom(msg.sender, address(this), paymentAmount);
-        if (!success) revert CrowdfundCampaign__TrasnferFailed();
+        if (!success) revert CrowdfundCampaign__TransferFailed();
 
         // If all the shares has been sold we turn funded to true
         if (sharesLeftToBuy == 0) funded = true;
     }
 
     /// function redeemShares
+    function redeemShares() external {
+        // Checks - can only redeemShares if campaign is funded
+        if (!funded) revert CrowdfundCampaign__CampaignNotFullyFunded();
+
+        uint256 sharesToRedeem = sharesAquired[msg.sender];
+
+        // Effects
+        sharesAquired[msg.sender] = 0;
+
+        // Interactions
+        bool success = ownershipToken.transferFrom(address(this), msg.sender, sharesToRedeem);
+        if (!success) revert CrowdfundCampaign__TransferFailed();
+    }
 
     /// function withdrawFunds
 }
