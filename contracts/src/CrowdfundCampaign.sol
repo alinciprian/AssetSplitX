@@ -53,6 +53,14 @@ contract CrowdfundCampaign {
     /// keeps track of how much each user contributed
     mapping(address => uint256) public contributed;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                  Events
+    //////////////////////////////////////////////////////////////////////////*/
+
+    event SharesBought(address indexed user, uint256 sharesAmount, uint256 contributedAmount);
+    event SharesRedeemed(address indexed user, uint256 sharesAmount);
+    event UsedRefunded(address indexed user, uint256 refundAmount);
+
     constructor(
         string memory _itemName,
         string memory _symbol,
@@ -95,6 +103,7 @@ contract CrowdfundCampaign {
         // the payment amount is computed by multiplying the sharePrice with the amount of shares to be bought
         bool success = IERC20(paymentToken).transferFrom(msg.sender, address(this), paymentAmount);
         if (!success) revert CrowdfundCampaign__TransferFailed();
+        emit SharesBought(msg.sender, _sharesAmount, paymentAmount);
 
         // If all the shares has been sold we turn funded to true
         if (sharesLeftToBuy == 0) funded = true;
@@ -114,6 +123,7 @@ contract CrowdfundCampaign {
         // Interactions
         bool success = ownershipToken.transferFrom(address(this), msg.sender, sharesToRedeem);
         if (!success) revert CrowdfundCampaign__TransferFailed();
+        emit SharesRedeemed(msg.sender, sharesToRedeem);
     }
 
     /// function refund - !funded && deadline passed
@@ -128,7 +138,10 @@ contract CrowdfundCampaign {
         contributed[msg.sender] = 0;
 
         // Interactions
-        bool success = IERC20(paymentToken).transferFrom(address(this), msg.sender, amountContributed);
+        bool success = IERC20(paymentToken).transfer(msg.sender, amountContributed);
+        if (!success) revert CrowdfundCampaign__TransferFailed();
+
+        emit UsedRefunded(msg.sender, amountContributed);
     }
 
     /// function withdraw campaign funds
