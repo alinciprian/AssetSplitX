@@ -15,6 +15,7 @@ contract CrowdfundCampaign {
     error CrowdfundCampaign__InvalidSharesAmount();
     error CrowdfundCampaign__TrasnferFailed();
     error CrowdfundCampaign__CampaignFullyFunded();
+    error CrowdfundCampaign__DeadlineExceed();
 
     /// organizer of the campaign
     address public organizer;
@@ -65,6 +66,7 @@ contract CrowdfundCampaign {
     /// @param _sharesAmount the amount of shares to be bought
     function buyShares(uint256 _sharesAmount) public {
         // perform the checks
+        if (block.timestamp > deadline) revert CrowdfundCampaign__DeadlineExceed();
         if (funded) revert CrowdfundCampaign__CampaignFullyFunded();
         if (_sharesAmount <= 0 || _sharesAmount > sharesLeftToBuy) revert CrowdfundCampaign__InvalidSharesAmount();
 
