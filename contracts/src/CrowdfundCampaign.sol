@@ -19,6 +19,8 @@ contract CrowdfundCampaign {
     error CrowdfundCampaign__DeadlineExceed();
     error CrowdfundCampaign__CampaignNotFullyFunded();
     error CrowdfundCampaign__CampaignNotEnded();
+    error CrowdfundCampaign__RefundCriteriaNotMet();
+    error CrowdfundCampaign__NothingToRefund();
 
     /// organizer of the campaign
     address public organizer;
@@ -47,6 +49,9 @@ contract CrowdfundCampaign {
 
     /// keeps track of how many shares each user aquired
     mapping(address => uint256) public sharesAquired;
+
+    /// keeps track of how much each user contributed
+    mapping(address => uint256) public contributed;
 
     constructor(
         string memory _itemName,
@@ -84,6 +89,7 @@ contract CrowdfundCampaign {
         // Effects
         sharesAquired[msg.sender] += _sharesAmount;
         sharesLeftToBuy -= _sharesAmount;
+        contributed[msg.sender] += paymentAmount;
 
         // Interactions
         // the payment amount is computed by multiplying the sharePrice with the amount of shares to be bought
@@ -94,7 +100,8 @@ contract CrowdfundCampaign {
         if (sharesLeftToBuy == 0) funded = true;
     }
 
-    /// function redeemShares
+    /// Funtion used to allow users to redeem shares
+    /// @dev function is meant to be used only if the campaign is succesful.
     function redeemShares() external {
         // Checks - can only redeemShares if campaign is funded
         if (!funded) revert CrowdfundCampaign__CampaignNotFullyFunded();
@@ -109,5 +116,20 @@ contract CrowdfundCampaign {
         if (!success) revert CrowdfundCampaign__TransferFailed();
     }
 
-    /// function withdrawFunds
+    /// function refund - !funded && deadline passed
+    /// @dev function is meant to be used only if the campaign fails
+    function refund() external {
+        // Checks
+        if (funded || block.timestamp < deadline) revert CrowdfundCampaign__RefundCriteriaNotMet();
+        uint256 amountContributed = contributed[msg.sender];
+        if (amountContributed == 0) revert CrowdfundCampaign__NothingToRefund();
+
+        // Effects
+        contributed[msg.sender] = 0;
+
+        // Interactions
+        bool success = IERC20(paymentToken).transferFrom(address(this), msg.sender, amountContributed);
+    }
+
+    /// function withdraw campaign funds
 }
