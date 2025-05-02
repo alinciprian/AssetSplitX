@@ -42,26 +42,26 @@ Token holders can trade their tokens, they can vote for actions like selling the
 
     # User Dashboard: view purchased shares, contributed amount, redeemable tokens, refund status
 
-## Connect to smart contracts via ethers.js/viem
+### Connect to smart contracts via ethers.js/viem
 
-## Add WalletConnect + MetaMask support
+### Add WalletConnect + MetaMask support
 
-## Display share ownership via OwnershipToken balance
+### Display share ownership via OwnershipToken balance
 
-### Phase 3: Post-Campaign Asset & Token Management
+## Phase 3: Post-Campaign Asset & Token Management
 
-## Asset purchase event confirmation (off-chain process with event emission like AssetPurchased)
+### Asset purchase event confirmation (off-chain process with event emission like AssetPurchased)
 
-## Transfer OwnershipTokens to buyers via redeemShares()
+### Transfer OwnershipTokens to buyers via redeemShares()
 
-## Secondary market or internal peer-to-peer trading for OwnershipTokens
+### Secondary market or internal peer-to-peer trading for OwnershipTokens
 
-## DAO governance proposals and voting module
+### DAO governance proposals and voting module
 
-### Phase 4: Security, Audit, & Compliance
+## Phase 4: Security, Audit, & Compliance
 
-## Complete Foundry fuzz + invariant testing
-## Perform gas optimizations
-## Run smart contract security audit (manual + using tools like Slither, Echidna, and MythX)
-## Integrate KYC/AML features if tokenizing real assets
+#### Complete Foundry fuzz + invariant testing
+#### Perform gas optimizations
+#### Run smart contract security audit (manual + using tools like Slither, Echidna, and MythX)
+#### Integrate KYC/AML features if tokenizing real assets
 
