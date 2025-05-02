@@ -16,25 +16,25 @@ Token holders can trade their tokens, they can vote for actions like selling the
 
 ![alt text](image.png)
 
-### Phase 1: Core Protocol Finalization (Smart Contracts)
+## Phase 1: Core Protocol Finalization (Smart Contracts)
 
-## Finalize current CrowdfundCampaign contract:
+### Finalize current CrowdfundCampaign contract:
 
-## Integrate minting of OwnershipToken at funding completion (either pre-minted on deploy, or mint on full funding event).
+### Integrate minting of OwnershipToken at funding completion (either pre-minted on deploy, or mint on full funding event).
 
-## Ensure OwnershipToken includes compliance checks (if your existing one connects to IdentityRegistry/Compliance modules — good to go).
+### Ensure OwnershipToken includes compliance checks (if your existing one connects to IdentityRegistry/Compliance modules — good to go).
 
-## Implement Escrow contract :
+### Implement Escrow contract :
     # Holds funds until asset seller confirms transfer off-chain.
     # Organizer can claim funds only after asset escrow process completes.
 
-## DAO Governance Module:
+### DAO Governance Module:
 
     # Simple DAO with proposal + voting for post-campaign asset management (sell/lease/auction decisions).
 
-### Phase 2: Frontend Dapp Integration
+## Phase 2: Frontend Dapp Integration
 
-## Build Next.js or Vite + React frontend
+### Build Next.js or Vite + React frontend
 
     # Campaign details display (name, price, progress bar, shares left, deadline countdown)
 
