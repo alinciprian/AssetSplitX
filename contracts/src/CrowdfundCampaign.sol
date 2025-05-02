@@ -62,26 +62,27 @@ contract CrowdfundCampaign {
         paymentToken = _paymentToken;
     }
 
-    ///
     /// @param _sharesAmount the amount of shares to be bought
     function buyShares(uint256 _sharesAmount) public {
         // perform the checks
-        if (block.timestamp > deadline) revert CrowdfundCampaign__DeadlineExceed();
         if (funded) revert CrowdfundCampaign__CampaignFullyFunded();
-        if (_sharesAmount <= 0 || _sharesAmount > sharesLeftToBuy) revert CrowdfundCampaign__InvalidSharesAmount();
+        if (block.timestamp > deadline) revert CrowdfundCampaign__DeadlineExceed();
+        if (_sharesAmount <= 0 || _sharesAmount > sharesLeftToBuy || _sharesAmount > maxSharesPerUser) {
+            revert CrowdfundCampaign__InvalidSharesAmount();
+        }
 
+        uint256 paymentAmount = _sharesAmount * sharePrice;
         // update the database
         sharesAquired[msg.sender] += _sharesAmount;
         sharesLeftToBuy -= _sharesAmount;
 
         // interaction
         // the payment amount is computed by multiplying the sharePrice with the amount of shares to be bought
-        uint256 paymentAmount = _sharesAmount * sharePrice;
+
         bool success = IERC20(paymentToken).transferFrom(msg.sender, address(this), paymentAmount);
         if (!success) revert CrowdfundCampaign__TrasnferFailed();
-        success = ownershipToken.transferFrom(address(this), msg.sender, _sharesAmount);
-        if (!success) revert CrowdfundCampaign__TrasnferFailed();
 
+        // If all the shares has been sold we turn funded to true
         if (sharesLeftToBuy == 0) funded = true;
     }
 
