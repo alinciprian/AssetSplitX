@@ -16,57 +16,52 @@ Token holders can trade their tokens, they can vote for actions like selling the
 
 ![alt text](image.png)
 
-📌 Phase 1: Core Protocol Finalization (Smart Contracts)
-✅ Finalize current CrowdfundCampaign contract:
+### Phase 1: Core Protocol Finalization (Smart Contracts)
 
-✅ Integrate minting of OwnershipToken at funding completion (either pre-minted on deploy, or mint on full funding event).
+## Finalize current CrowdfundCampaign contract:
 
-✅ Ensure OwnershipToken includes compliance checks (if your existing one connects to IdentityRegistry/Compliance modules — good to go).
+## Integrate minting of OwnershipToken at funding completion (either pre-minted on deploy, or mint on full funding event).
 
-✅ Double check refund, redeem, and claim logic via Foundry fuzz + invariant tests.
+## Ensure OwnershipToken includes compliance checks (if your existing one connects to IdentityRegistry/Compliance modules — good to go).
 
-✅ Implement Escrow contract (optional but highly recommended):
+## Implement Escrow contract :
+    # Holds funds until asset seller confirms transfer off-chain.
+    # Organizer can claim funds only after asset escrow process completes.
 
-Holds funds until asset seller confirms transfer off-chain.
+## DAO Governance Module:
 
-Organizer can claim funds only after asset escrow process completes.
+    # Simple DAO with proposal + voting for post-campaign asset management (sell/lease/auction decisions).
 
-✅ (Optional) DAO Governance Module:
+### Phase 2: Frontend Dapp Integration
 
-Simple DAO with proposal + voting for post-campaign asset management (sell/lease/auction decisions).
+## Build Next.js or Vite + React frontend
 
-Could be an upgrade later but worth designing for.
+    # Campaign details display (name, price, progress bar, shares left, deadline countdown)
 
-📌 Phase 2: Frontend Dapp Integration
-✅ Build Next.js or Vite + React frontend
+    # Buy Shares form (integrating with buyShares() function via ethers.js/viem)
 
-Campaign details display (name, price, progress bar, shares left, deadline countdown)
+    # User Dashboard: view purchased shares, contributed amount, redeemable tokens, refund status
 
-Buy Shares form (integrating with buyShares() function via ethers.js/viem)
+## Connect to smart contracts via ethers.js/viem
 
-User Dashboard: view purchased shares, contributed amount, redeemable tokens, refund status
+## Add WalletConnect + MetaMask support
 
-✅ Connect to smart contracts via ethers.js/viem
+## Display share ownership via OwnershipToken balance
 
-✅ Add WalletConnect + MetaMask support
+### Phase 3: Post-Campaign Asset & Token Management
 
-✅ Optional: display share ownership via OwnershipToken balance
+## Asset purchase event confirmation (off-chain process with event emission like AssetPurchased)
 
-📌 Phase 3: Post-Campaign Asset & Token Management
-✅ Asset purchase event confirmation (off-chain process with event emission like AssetPurchased)
+## Transfer OwnershipTokens to buyers via redeemShares()
 
-✅ Transfer OwnershipTokens to buyers via redeemShares()
+## Secondary market or internal peer-to-peer trading for OwnershipTokens
 
-✅ (Optional) Secondary market or internal peer-to-peer trading for OwnershipTokens
+## DAO governance proposals and voting module
 
-✅ (Optional) DAO governance proposals and voting module
+### Phase 4: Security, Audit, & Compliance
 
-📌 Phase 4: Security, Audit, & Compliance
-✅ Complete Foundry fuzz + invariant testing
-✅ Perform gas optimizations
-✅ Run smart contract security audit (manual + using tools like Slither, Echidna, and MythX)
-
-✅ (Optional) Integrate KYC/AML features if tokenizing real assets
-
-Use IdentityRegistry + Compliance contract hooks
+## Complete Foundry fuzz + invariant testing
+## Perform gas optimizations
+## Run smart contract security audit (manual + using tools like Slither, Echidna, and MythX)
+## Integrate KYC/AML features if tokenizing real assets
 
