@@ -8,13 +8,13 @@ import {Ownable} from "../../lib/openzeppelin-contracts/contracts/access/Ownable
 import {IIdentityRegistry} from "./interfaces/IIdentityRegistry.sol";
 import {ICompliance} from "./interfaces/ICompliance.sol";
 
-/// @title ERC3643Token
+/// @title OwnershipToken
 /// @author AlinCiprian
 /// @notice This contract is an implementation of an ERC20 Token with several conditions on top of it.
 /// Whenever a collective buy campaign is succesful, a new ERC3643 contract will be deployed, with a total
 /// of 100 tokens which will be minted to the campaign contract.
 
-contract ERC3643Token is ERC20, ERC20Burnable, Ownable {
+contract OwnershipToken is ERC20, ERC20Burnable, Ownable {
     error ERC3643Token__SenderNotVerified();
     error ERC3643Token__RecipientNotVerified();
     error ERC3643Token__TransferNotCompliant();
