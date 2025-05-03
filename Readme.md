@@ -1,4 +1,4 @@
-### AssetSplitX
+## AssetSplitX
 
 This dApp is meant to allow users to collectively buy an expensive item, each buyer becoming a fractional owner, proportional to the 
 amount of shares the user bought. 

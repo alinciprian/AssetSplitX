@@ -102,7 +102,7 @@ contract CrowdfundCampaign {
         itemName = _itemName;
         itemPrice = _itemPrice;
         maxSharesPerUser = _maxSharesPerUser;
-        deadline = block.timestamp + _duration;
+        deadline = block.timestamp + _duration * 1 hours;
         sharePrice = _itemPrice / totalShares;
         ownershipToken = new OwnershipToken(_itemName, _symbol, _compliance, _identityregistry);
         paymentToken = _paymentToken;
