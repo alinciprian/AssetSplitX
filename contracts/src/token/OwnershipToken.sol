@@ -4,6 +4,7 @@ pragma solidity 0.8.28;
 import {
     ERC20Burnable, ERC20
 } from "../../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import {ERC20Votes} from "../../lib/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import {Ownable} from "../../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 import {IIdentityRegistry} from "./interfaces/IIdentityRegistry.sol";
 import {ICompliance} from "./interfaces/ICompliance.sol";
@@ -14,7 +15,7 @@ import {ICompliance} from "./interfaces/ICompliance.sol";
 /// Whenever a collective buy campaign is succesful, a new ERC3643 contract will be deployed, with a total
 /// of 100 tokens which will be minted to the campaign contract.
 
-contract OwnershipToken is ERC20, ERC20Burnable, Ownable {
+contract OwnershipToken is ERC20, ERC20Burnable, Ownable, ERC20Votes {
     error ERC3643Token__SenderNotVerified();
     error ERC3643Token__RecipientNotVerified();
     error ERC3643Token__TransferNotCompliant();
@@ -25,7 +26,7 @@ contract OwnershipToken is ERC20, ERC20Burnable, Ownable {
     ICompliance public compliance;
 
     // The total supply that will ever exist is 100 tokens, each one representing 1 % ownership of the entire asset
-    uint256 totalSupply = 100;
+    uint256 totalSupply = 100 ether;
 
     constructor(string memory _name, string memory _symbol, address _identityRegistryAdress, address _complianceAddress)
         ERC20(_name, _symbol)
