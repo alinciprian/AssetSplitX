@@ -3,6 +3,20 @@ pragma solidity 0.8.28;
 
 import {CrowdfundCampaign} from "./CrowdfundCampaign.sol";
 
+/// @title CampaignFactory
+/// @author Ciprian
+/// @notice This contract is responsible for deploying and managing multiple CrowdfundCampaign contracts.
+/// It serves as a factory pattern implementation, allowing users or organizers to create new asset
+/// crowdfunding campaigns with customizable parameters such as item name, target price, duration,
+/// maximum shares per user, and compliance modules.
+///
+/// The factory keeps track of all deployed campaign addresses and emits an event each time a new
+/// campaign is created for off-chain indexing or frontend consumption.
+///
+/// @dev This implementation assumes that each deployed CrowdfundCampaign contract will handle
+/// its own payment, ownership, and refund logic independently. The factory does not interact with
+/// campaign funds or ownership tokens post-deployment.
+
 contract CampaignFactory {
     uint256 public totalCampaigns;
     address[] public campaigns;
