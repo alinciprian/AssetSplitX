@@ -3,6 +3,7 @@ pragma solidity 0.8.28;
 
 import {OwnershipToken} from "./token/OwnershipToken.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
+import {EscrowFunds} from "./EscrowFunds.sol";
 
 /// @title CrowdfundCampaign
 /// @author AlinCiprian
@@ -50,6 +51,8 @@ contract CrowdfundCampaign {
     OwnershipToken ownershipToken;
     /// address of the stablecoin -> USDC
     address paymentToken;
+    /// the address where funds are sent once the campaign is funded
+    address escrow;
 
     /// keeps track of how many shares each user aquired
     mapping(address => uint256) public sharesAquired;
@@ -97,7 +100,8 @@ contract CrowdfundCampaign {
         address _compliance,
         address _identityregistry,
         address _paymentToken,
-        address _organizer
+        address _organizer,
+        address _escrow
     ) {
         itemName = _itemName;
         itemPrice = _itemPrice;
@@ -178,15 +182,11 @@ contract CrowdfundCampaign {
         emit UserRefunded(msg.sender, amountContributed);
     }
 
+    /// Once the campaign is finalized, the funds are transfered to the escrow contract
     /// @dev function is meant to be called only if the campaign ended succesfully
-    function claimFunds() external onlyOrganizer {
+    function finishCampaign() external onlyOrganizer {
         if (!funded) revert CrowdfundCampaign__CampaignNotFullyFunded();
-        IERC20(paymentToken).transfer(msg.sender, totalRaised);
-
-        /// NEED to implement escrow
+        bool success = IERC20(paymentToken).transfer(escrow, totalRaised);
+        if (!success) revert CrowdfundCampaign__TransferFailed();
     }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                VIEW FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
 }

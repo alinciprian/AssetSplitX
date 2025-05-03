@@ -2,13 +2,12 @@
 pragma solidity 0.8.28;
 
 import {CrowdfundCampaign} from "./CrowdfundCampaign.sol";
+import {EscrowFunds} from "./EscrowFunds.sol";
 
 /// @title CampaignFactory
-/// @author Ciprian
+/// @author AlinCiprian
 /// @notice This contract is responsible for deploying and managing multiple CrowdfundCampaign contracts.
-/// It serves as a factory pattern implementation, allowing users or organizers to create new asset
-/// crowdfunding campaigns with customizable parameters such as item name, target price, duration,
-/// maximum shares per user, and compliance modules.
+/// It serves as a factory pattern implementation, allowing organizers to create new asset crowdfunding campaigns.
 ///
 /// The factory keeps track of all deployed campaign addresses and emits an event each time a new
 /// campaign is created for off-chain indexing or frontend consumption.
@@ -21,6 +20,7 @@ contract CampaignFactory {
     uint256 public totalCampaigns;
     address[] public campaigns;
     mapping(address => address[]) public compaignsByOrganizer;
+    mapping(address => address) public campaignToEscrow;
 
     event CampaignCreated(
         address campaignAddress, address organizer, string itemName, uint256 goalAmount, uint256 deadline
@@ -35,8 +35,13 @@ contract CampaignFactory {
         address _compliance,
         address _identityregistry,
         address _paymentToken,
-        address _organizer
+        address _beneficiary,
+        address _authorizedParty
     ) external {
+        /// deploy new escrow
+        EscrowFunds newEscrowfunds = new EscrowFunds(_beneficiary, _authorizedParty, _paymentToken);
+
+        /// deploy new campaign
         CrowdfundCampaign newCampaign = new CrowdfundCampaign(
             _itemName,
             _symbol,
@@ -46,13 +51,16 @@ contract CampaignFactory {
             _compliance,
             _identityregistry,
             _paymentToken,
-            _organizer
+            msg.sender,
+            address(newEscrowfunds)
         );
+
+        campaignToEscrow[address(newCampaign)] = address(newEscrowfunds);
         campaigns.push(address(newCampaign));
-        compaignsByOrganizer[_organizer].push(address(newCampaign));
+        compaignsByOrganizer[msg.sender].push(address(newCampaign));
         uint256 deadline = block.timestamp + _duration * 1 hours;
         totalCampaigns++;
 
-        emit CampaignCreated(address(newCampaign), _organizer, _itemName, _itemPrice, deadline);
+        emit CampaignCreated(address(newCampaign), msg.sender, _itemName, _itemPrice, deadline);
     }
 }
