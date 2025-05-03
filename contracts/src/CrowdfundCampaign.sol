@@ -82,7 +82,7 @@ contract CrowdfundCampaign {
     /// @param _itemName The name of the item
     /// @param _symbol Symbol of the item
     /// @param _itemPrice The target price
-    /// @param _duration Duration of the campaign
+    /// @param _duration How many hours will the campaign last
     /// @param _maxSharesPerUser How many shares to allow each user to buy. Ex 25 means max 25% ownership per user.
     /// @param _compliance Address of the compliance contract
     /// @param _identityregistry Address of the identityRegistry contract
@@ -178,7 +178,6 @@ contract CrowdfundCampaign {
         emit UserRefunded(msg.sender, amountContributed);
     }
 
-    /// function withdraw campaign funds
     /// @dev function is meant to be called only if the campaign ended succesfully
     function claimFunds() external onlyOrganizer {
         if (!funded) revert CrowdfundCampaign__CampaignNotFullyFunded();
@@ -186,4 +185,8 @@ contract CrowdfundCampaign {
 
         /// NEED to implement escrow
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                VIEW FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 }

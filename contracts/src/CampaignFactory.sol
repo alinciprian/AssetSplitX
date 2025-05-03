@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity 0.8.28;
 
 import {CrowdfundCampaign} from "./CrowdfundCampaign.sol";
 
 contract CampaignFactory {
+    uint256 public totalCampaigns;
     address[] public campaigns;
+    mapping(address => address[]) public compaignsByOrganizer;
 
     event CampaignCreated(
         address campaignAddress, address organizer, string itemName, uint256 goalAmount, uint256 deadline
@@ -33,12 +35,10 @@ contract CampaignFactory {
             _organizer
         );
         campaigns.push(address(newCampaign));
+        compaignsByOrganizer[_organizer].push(address(newCampaign));
         uint256 deadline = block.timestamp + _duration * 1 hours;
+        totalCampaigns++;
 
         emit CampaignCreated(address(newCampaign), _organizer, _itemName, _itemPrice, deadline);
-    }
-
-    function getAllCampaigns() external view returns (address[] memory) {
-        return campaigns;
     }
 }
