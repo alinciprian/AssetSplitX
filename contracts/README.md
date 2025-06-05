@@ -1,2 +1,1 @@
 
-Use Chainlink’s Any API or Proof of Reserve model to reflect off-chain asset state (like sale finalized / property deed transferred) before executing critical on-chain actions like burning OwnershipTokens or distributing sales proceeds.
